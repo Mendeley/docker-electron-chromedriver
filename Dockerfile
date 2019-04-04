@@ -41,6 +41,26 @@ RUN apt-get -qqy install \
 RUN apt-get -qqy install \
   libnss3-dev libgconf-2-4 fuse libgtk2.0-0 libgtk-3-0 libasound2
 
+#=====
+# Electron app's using node-keytar need libsecret installed.
+# Note this won't make node-keytar actually work as don't have
+# gnome-keyring installed, but it does allow the app to start
+# successfully. The application has a fallback to keep secrets
+# in memory if keytar not working.
+#
+# NOTE this does not effect real built apps! The app has a
+# dependency that user's have gnome-keyring or similar installed.
+#
+# TODO figure out how to have gnome-keyring in test container,
+# see https://github.com/atom/node-keytar/issues/132#issuecomment-444159414
+# for inspiration, and node-keytars own build/test setup. The main
+# problem encountered is that this image is based on a debian
+# that doesn't have python-gnomekeyring in it's repos.
+#=====
+RUN apt-get -qqy install \
+  libsecret-1-dev
+
+
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ADD entrypoint.sh /entrypoint.sh
